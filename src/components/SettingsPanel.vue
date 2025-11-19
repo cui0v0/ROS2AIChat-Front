@@ -1,6 +1,6 @@
 <template>
     <!-- 连接设置面板 -->
-    <div class="settings-panel liquid-glass apple-radius" :class="{ 'hidden': modelValue }">
+    <div ref="panelRef" class="settings-panel liquid-glass apple-radius" :class="{ 'hidden': modelValue }" :style="cssVars">
       <div class="settings-content">
         <div class="settings-header">
           <label for="ws-url">WebSocket地址</label>
@@ -25,6 +25,7 @@
 </template>
 
 <script setup>
+import {ref,computed,watch,onMounted} from 'vue'
 const props = defineProps({
   modelValue: {  // 改为使用v-model
     type: Boolean,
@@ -43,4 +44,37 @@ function handleConnect() {
   // 连接成功后可以选择自动关闭面板
   // emit('update:modelValue', false)
 }
+
+const panelRef = ref(null);
+const targetX = ref(0);
+const targetY = ref(0);
+
+function updateTargetPosition(){
+  const settingBtn = document.querySelector('.action-btn.settings')
+  if(settingBtn && panelRef.value){
+    const btnRect = settingBtn.getBoundingClientRect();
+    const panelRect = panelRef.value.getBoundingClientRect();
+    const centerX = window.innerWidth / 2
+    const centerY = window.innerHeight / 2
+    targetX.value = btnRect.left + btnRect.width / 2 - centerX
+    targetY.value = btnRect.top + btnRect.height / 2 - centerY
+  }
+}
+
+const cssVars = computed(() => ({
+  '--target-x': `${targetX.value}px`,
+  '--target-y': `${targetY.value}px`
+}))
+
+watch(() => props.modelValue, (newVal) => {
+  if (!newVal) {
+    updateTargetPosition();
+  }
+})
+
+onMounted(() => {
+  updateTargetPosition();
+  window.addEventListener('resize', updateTargetPosition);
+})
+
 </script>

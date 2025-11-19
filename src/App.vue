@@ -7,6 +7,7 @@
     />
     <SettingsPanel 
       v-model="hideSettings"
+      :ws-url="wsUrl"
       @update-ws-url="updateWsUrl"
       @connect="handleConnect"
     />
